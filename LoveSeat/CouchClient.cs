@@ -3,6 +3,7 @@ using System.Net;
 using System.Web;
 using LoveSeat.Support;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace LoveSeat
 {
@@ -91,6 +92,25 @@ namespace LoveSeat
         public CouchResponseObject TriggerReplication(string source, string target)
         {
             return TriggerReplication(source, target, false);
+        }
+
+        /// <summary>
+        /// Changes server configuration
+        /// </summary>
+        /// <param name="section">Config section</param>
+        /// <param name="key">Config key</param>
+        /// <param name="value">New value</param>
+        /// <returns></returns>
+        public bool ConfigChange(string section, string key, string value)
+        {
+            string req = string.Format("{0}_config/{1}/{2}", baseUri, section, key);
+            //value = HttpUtility.UrlEncode(JsonConvert.SerializeObject(value));
+            value = JsonConvert.SerializeObject(value);
+            var resp = GetRequest(req).Put().Json().Data(value).GetCouchResponse();
+            if (resp.StatusCode == HttpStatusCode.OK)
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
