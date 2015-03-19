@@ -114,6 +114,22 @@ namespace LoveSeat
         }
 
         /// <summary>
+        /// Deletes a configuration key
+        /// </summary>
+        /// <param name="section"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool DeleteConfig(string section, string key)
+        {
+            string req = string.Format("{0}_config/{1}/{2}", baseUri, section, key);
+            var resp = GetRequest(req).Delete().GetCouchResponse();
+            if (resp.StatusCode == HttpStatusCode.OK)
+                return true;
+            else
+                return false;
+        }
+
+        /// <summary>
         /// Creates a database
         /// </summary>
         /// <param name="databaseName">Name of new database</param>
@@ -186,20 +202,23 @@ namespace LoveSeat
         /// </summary>
         /// <param name="databaseName"></param>
         /// <returns></returns>
-      public bool HasDatabase(string databaseName) {
+        public bool HasDatabase(string databaseName)
+        {
             var request = GetRequest(baseUri + databaseName).Timeout(-1);
 
             var response = request.GetCouchResponse();
             var pDocResult = new Document(response.ResponseString);
 
-            if (pDocResult["error"] == null) {
+            if (pDocResult["error"] == null)
+            {
                 return (true);
             }
-            if (pDocResult["error"].Value<String>() == "not_found") {
+            if (pDocResult["error"].Value<String>() == "not_found")
+            {
                 return (false);
             }
             throw new Exception(pDocResult["error"].Value<String>());
-      }
+        }
 
         /// <summary>
         /// Returns true/false depending on whether or not the user is contained in the _users database
