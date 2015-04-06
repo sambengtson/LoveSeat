@@ -94,6 +94,16 @@ namespace LoveSeat
             return TriggerReplication(source, target, false);
         }
 
+        public string GetConfigKey(string section, string key)
+        {
+            string req = string.Format("{0}_config/{1}/{2}", baseUri, section, key);
+            var resp = GetRequest(req).Get().Json().GetCouchResponse();
+            if (resp.StatusCode == HttpStatusCode.OK)
+                return JsonConvert.DeserializeObject<string>(resp.ResponseString);
+            else
+                throw new Exception(resp.ResponseString);
+        }
+
         /// <summary>
         /// Changes server configuration
         /// </summary>

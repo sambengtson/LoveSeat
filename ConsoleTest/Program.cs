@@ -15,7 +15,8 @@ namespace ConsoleTest
             var client = new CouchClient();
             var db = client.GetDatabase("tsm-sync");
 
-            var view = db.View<LocalUser>("GetLocalUsers", "Users");
+            string blah = client.GetConfigKey("couch_httpd_auth", "require_valid_user");
+            Console.WriteLine(blah);
 
         }
     }
