@@ -52,6 +52,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LoveSeat.Interfaces\LoveSeat.Interfaces.csproj">
+      <Project>{18833fc5-9145-451d-82d4-41a1886b0be7}</Project>
+      <Name>LoveSeat.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LoveSeat\LoveSeat.csproj">
       <Project>{af987164-0100-4a90-a767-d473f882ea8b}</Project>
       <Name>LoveSeat</Name>

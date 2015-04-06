@@ -446,12 +446,17 @@ namespace LoveSeat
             if (options != null)
                 uri += options.ToString();
             CouchRequest request = GetRequest(uri, options == null ? null : options.Etag).Get().Json();
-            if (options.isAtKeysSizeLimit)
+
+            if (options != null)
             {
-                // Encode the keys parameter in the request body and turn it into a POST request.
-                string keys = "{\"keys\": [" + String.Join(",", options.Keys.Select(k => k.ToRawString()).ToArray()) + "]}";
-                request.Post().Data(keys);
+                if (options.isAtKeysSizeLimit)
+                {
+                    // Encode the keys parameter in the request body and turn it into a POST request.
+                    string keys = "{\"keys\": [" + String.Join(",", options.Keys.Select(k => k.ToRawString()).ToArray()) + "]}";
+                    request.Post().Data(keys);
+                }
             }
+
             return request;
         }
 
