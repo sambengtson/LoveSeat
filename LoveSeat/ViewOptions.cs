@@ -55,7 +55,7 @@ namespace LoveSeat
         {
             string result = "";
             if ((Key != null) && (Key.Count > 0))
-                result += "&key=" + Key.ToString();
+                result += "&key=" + Key.ToRawString();
             if (Keys != null && !isAtKeysSizeLimit)
               result += "&keys=[" + BuildKeysString() + "]";
             if ((StartKey != null) && (StartKey.Count > 0))

@@ -4,6 +4,8 @@ using System.Web;
 using LoveSeat.Support;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+
 
 namespace LoveSeat
 {
@@ -77,11 +79,11 @@ namespace LoveSeat
         /// <param name="target">Uri or database name of database to replicate to</param>
         /// <param name="continuous">Whether or not CouchDB should continue to replicate going forward on it's own</param>
         /// <returns></returns>
-        public CouchResponseObject TriggerReplication(string source, string target, bool continuous)
+        public CouchResponseObject TriggerReplication(string source, string target, bool continuous, bool cancel)
         {
             var request = GetRequest(baseUri + "_replicate");
 
-            var options = new ReplicationOptions(source, target, continuous);
+            var options = new ReplicationOptions(source, target, continuous, cancel);
             var response = request.Post()
                 .Data(options.ToString())
                 .GetCouchResponse();
@@ -91,7 +93,7 @@ namespace LoveSeat
 
         public CouchResponseObject TriggerReplication(string source, string target)
         {
-            return TriggerReplication(source, target, false);
+            return TriggerReplication(source, target, false, false);
         }
 
         public string GetConfigKey(string section, string key)
@@ -140,6 +142,26 @@ namespace LoveSeat
         }
 
         /// <summary>
+        /// Gets active running tasks.  Since each task is a different JSON object, we are going to try to return a list of dynamic types.
+        /// Client can pick and choose what they want.
+        /// </summary>
+        /// <returns>Dynamic list of tasks.</returns>
+        public List<dynamic> GetActiveTasks()
+        {
+            string req = string.Format("{0}_active_tasks", baseUri);
+            var resp = GetRequest(req).Get().GetCouchResponse();
+            if (resp.StatusCode == HttpStatusCode.OK)
+            {
+                var taskList = JsonConvert.DeserializeObject<List<dynamic>>(resp.ResponseString);
+                return taskList;
+            }
+            else
+            {
+                throw new Exception(resp.ResponseString);
+            }
+        }
+
+        /// <summary>
         /// Creates a database
         /// </summary>
         /// <param name="databaseName">Name of new database</param>
@@ -181,7 +203,7 @@ namespace LoveSeat
                 .Put().Json().Data("\"" + passwordToCreate + "\"").GetCouchResponse();
 
             var user = @"{ ""name"": ""%name%"",
-  ""_id"": ""org.couchdb.user:%name%"", ""type"": ""user"", ""roles"": [],
+  ""_id"": ""org.couchdb.user:%name%"", ""type"": ""user"", ""roles"": []
 }".Replace("%name%", usernameToCreate).Replace("\r\n", "");
             var docResult = GetRequest(baseUri + "_users/org.couchdb.user:" + HttpUtility.UrlEncode(usernameToCreate))
                 .Put().Json().Data(user).GetCouchResponse().GetJObject();
@@ -193,18 +215,27 @@ namespace LoveSeat
         /// Deletes admin user  (if you have permission)
         /// </summary>
         /// <param name="userToDelete"></param>
-        public void DeleteAdminUser(string userToDelete)
+        public bool DeleteAdminUser(string userToDelete)
         {
             var iniResult = GetRequest(baseUri + "_config/admins/" + HttpUtility.UrlEncode(userToDelete))
                 .Delete().Json().GetCouchResponse();
 
-            var userDb = this.GetDatabase("_users");
-            var userId = "org.couchdb.user:" + HttpUtility.UrlEncode(userToDelete);
-            var userDoc = userDb.GetDocument(userId);
-            if (userDoc != null)
+            var res = GetRequest(baseUri + "_config/admins/" + userToDelete).Delete().GetCouchResponse();
+            if (res.StatusCode != HttpStatusCode.OK)
             {
-                userDb.DeleteDocument(userDoc.Id, userDoc.Rev);
+                return false;
             }
+
+            return true;
+
+
+            //var userDb = this.GetDatabase("_users");
+            //var userId = "org.couchdb.user:" + HttpUtility.UrlEncode(userToDelete);
+            //var userDoc = userDb.GetDocument(userId);
+            //if (userDoc != null)
+            //{
+            //    userDb.DeleteDocument(userDoc.Id, userDoc.Rev);
+            //}
         }
 
         /// <summary>

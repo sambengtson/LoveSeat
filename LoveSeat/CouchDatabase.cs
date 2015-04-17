@@ -1,7 +1,7 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Web;
 using LoveSeat.Interfaces;
@@ -65,6 +65,15 @@ namespace LoveSeat
                 GetRequest(databaseBaseUri + "/").Post().Json().Data(jsonForDocument).GetCouchResponse().GetJObject();
             return jobj;
         }
+
+        public CouchResponseObject CreateView(string design, string name, string func)
+        {
+            var res = GetRequest(string.Format("{0}/_design/{1}/_view/{2}", databaseBaseUri, design, name))
+                .Post().Json().Data(func).GetCouchResponse();
+
+            return res.GetJObject();
+        }
+
         public CouchResponseObject DeleteDocument(string id, string rev)
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(rev))
@@ -282,7 +291,7 @@ namespace LoveSeat
         /// <returns></returns>
         public ViewResult<T> View<T>(string viewName, string designDoc)
         {
-            return View<T>(viewName, null, designDoc);
+            return View<T>(viewName, new ViewOptions(), designDoc);
         }
 
         /// <summary>
@@ -410,6 +419,16 @@ namespace LoveSeat
             var uri = string.Format("{0}/_design/{1}/_view/{2}", databaseBaseUri, designDoc, viewName);
             return ProcessGenericResults<T>(uri, options);
         }
+
+        public ViewResult<T> View<T>(string viewName, string key, string designDoc)
+        {
+            var uri = string.Format("{0}/_design/{1}/_view/{2}", databaseBaseUri, designDoc, viewName);
+            uri += "?key=" + JsonConvert.SerializeObject(key);
+
+            //uri = "http://localhost:5984/tsm-sync/_design/Warehouses/_view/GetWarehouseProductItemByUpc?key=%22049000027624%22";
+            return ProcessGenericResults<T>(uri, new ViewOptions());
+        }
+
         /// <summary>
         /// Allows you to specify options and uses the defaultDesignDoc Specified.
         /// </summary>

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LoveSeat;
 using LoveSeat.Interfaces;
 
@@ -15,9 +12,8 @@ namespace ConsoleTest
             var client = new CouchClient();
             var db = client.GetDatabase("tsm-sync");
 
-            string blah = client.GetConfigKey("couch_httpd_auth", "require_valid_user");
-            Console.WriteLine(blah);
-
+            var resp = client.TriggerReplication("offline-activities", "https://sync.32market.com/kiosk-sync/", true, true);
+            Console.WriteLine(resp);
         }
     }
 
