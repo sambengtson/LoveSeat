@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Web;
 using LoveSeat.Support;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 
 namespace LoveSeat
@@ -39,6 +39,7 @@ namespace LoveSeat
         {
         }
 
+
         /// <summary>
         /// Constructs the CouchClient and gets an authentication cookie (10 min)
         /// </summary>
@@ -57,6 +58,7 @@ namespace LoveSeat
             {
                 baseUri = "https://" + host + ":" + port + "/";
             }
+
 
             authType = aT;
 

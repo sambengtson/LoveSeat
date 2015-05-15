@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Reflection;
 using LoveSeat;
 using LoveSeat.Interfaces;
 
@@ -12,8 +12,10 @@ namespace ConsoleTest
             var client = new CouchClient();
             var db = client.GetDatabase("tsm-sync");
 
-            var resp = client.TriggerReplication("offline-activities", "https://sync.32market.com/kiosk-sync/", true, true);
-            Console.WriteLine(resp);
+            var viewItems = db.View<dynamic>("getUserById", 26869, "Users");
+
+            var foo = client.GetActiveTasks();
+            Console.WriteLine(foo);
         }
     }
 

@@ -1,5 +1,6 @@
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Web;
 using Newtonsoft.Json.Linq;
@@ -50,7 +51,7 @@ namespace LoveSeat.Support
         /// <param name="uri"></param>
         /// <param name="username"></param>
         /// <param name="password"></param>
-        public CouchRequest(string uri, string username, string password)
+        public CouchRequest(string uri, string username, string password, string caPath = null)
         {
 
             request = (HttpWebRequest)WebRequest.Create(uri);
@@ -75,6 +76,12 @@ namespace LoveSeat.Support
             request.ContentType = "application/json";
             request.KeepAlive = true;
             request.Timeout = 10000;
+
+            if (caPath != null && File.Exists(caPath))
+            {
+                X509Certificate cert = new X509Certificate(caPath);
+                request.ClientCertificates.Add(cert);
+            }
         }
 
 

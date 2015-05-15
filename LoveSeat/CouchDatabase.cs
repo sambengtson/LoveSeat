@@ -429,6 +429,15 @@ namespace LoveSeat
             return ProcessGenericResults<T>(uri, new ViewOptions());
         }
 
+        public ViewResult<T> View<T>(string viewName, int key, string designDoc)
+        {
+            var uri = string.Format("{0}/_design/{1}/_view/{2}", databaseBaseUri, designDoc, viewName);
+            uri += "?key=" + key;
+
+            //uri = "http://localhost:5984/tsm-sync/_design/Warehouses/_view/GetWarehouseProductItemByUpc?key=%22049000027624%22";
+            return ProcessGenericResults<T>(uri, new ViewOptions());
+        }
+
         /// <summary>
         /// Allows you to specify options and uses the defaultDesignDoc Specified.
         /// </summary>
