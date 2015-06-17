@@ -504,8 +504,20 @@ namespace LoveSeat
             return ProcessResults(uri, options);
         }
 
+        /// <summary>
+        /// Gets all views in the specified design document.
+        /// </summary>
+        /// <typeparam name="T">the type/structure to deserialize to</typeparam>
+        /// <param name="designDoc">the name of the design doc</param>
+        /// <returns></returns>
+        public object GetViewsByDesign<T>(string designDoc)
+        {
+            var uri = string.Format("{0}/_design/{1}", databaseBaseUri, designDoc);
+            CouchRequest req = GetRequest(uri);
+            CouchResponse resp = req.GetCouchResponse();
 
-
+            return ObjectSerializer.Deserialize<T>(resp.ResponseString);
+        }
 
         #region Security
         public SecurityDocument getSecurityConfiguration()
