@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using LoveSeat.Interfaces;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace LoveSeat
 {
@@ -23,7 +19,7 @@ namespace LoveSeat
             StartKey = new KeyOptions();
             EndKey = new KeyOptions();
         }
-       /// <summary>
+        /// <summary>
         /// If you have a complex object as a string set this using a JRaw object()
         /// </summary>
         public IKeyOptions Key { get; set; }
@@ -51,15 +47,15 @@ namespace LoveSeat
         public string Etag { get; set; }
 
 
-        public  override string ToString()
+        public override string ToString()
         {
             string result = "";
             if ((Key != null) && (Key.Count > 0))
                 result += "&key=" + Key.ToRawString();
             if (Keys != null && !isAtKeysSizeLimit)
-              result += "&keys=[" + BuildKeysString() + "]";
+                result += "&keys=[" + BuildKeysString() + "]";
             if ((StartKey != null) && (StartKey.Count > 0))
-                if((StartKey.Count == 1) && (EndKey.Count > 1))
+                if ((StartKey.Count == 1) && (EndKey.Count > 1))
                     result += "&startkey=[" + StartKey.ToString() + "]";
                 else
                     result += "&startkey=" + StartKey.ToString();
@@ -83,7 +79,7 @@ namespace LoveSeat
                 result += "&descending=" + Descending.Value.ToString().ToLower();
             if (Stale.HasValue && Stale.Value)
             {
-                if(!string.IsNullOrEmpty(StaleOption))
+                if (!string.IsNullOrEmpty(StaleOption))
                 {
                     if (StaleOption.ToLower() == "ok")
                         result += "&stale=ok";
@@ -101,11 +97,12 @@ namespace LoveSeat
                 result += "&startkey_docid=" + StartKeyDocId;
             if (!string.IsNullOrEmpty(EndKeyDocId))
                 result += "&endkey_docid=" + EndKeyDocId;
-            return result.Length < 1 ? "" :  "?" + result.Substring(1);
+            return result.Length < 1 ? "" : "?" + result.Substring(1);
         }
 
-        private string BuildKeysString() {
-          return String.Join(",", Keys.Select(k => k.ToString()).ToArray());
+        private string BuildKeysString()
+        {
+            return String.Join(",", Keys.Select(k => k.ToString()).ToArray());
         }
 
         /// <summary>
@@ -115,9 +112,9 @@ namespace LoveSeat
         /// </summary>
         internal bool isAtKeysSizeLimit
         {
-          get { return Keys != null && Keys.Any() && BuildKeysString().Length > KeysLengthLimit; }
+            get { return Keys != null && Keys.Any() && BuildKeysString().Length > KeysLengthLimit; }
         }
     }
-   
+
 
 }

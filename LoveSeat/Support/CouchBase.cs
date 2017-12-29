@@ -7,7 +7,7 @@ namespace LoveSeat.Support
     {
         protected readonly string username;
         protected readonly string password;
-        protected readonly AuthenticationType authType;        
+        protected readonly AuthenticationType authType;
         protected string baseUri;
         private TtlDictionary<string, Cookie> cookiestore = new TtlDictionary<string, Cookie>();
         private int? timeout;
@@ -90,9 +90,5 @@ namespace LoveSeat.Support
             if (timeout.HasValue) request.Timeout(timeout.Value);
             return request;
         }
-
-
-
-
     }
 }

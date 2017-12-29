@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Web;
 using LoveSeat.Interfaces;
 using LoveSeat.Support;
@@ -14,6 +15,8 @@ namespace LoveSeat
     public class CouchDatabase : CouchBase, IDocumentDatabase
     {
         public IObjectSerializer ObjectSerializer = new DefaultSerializer();
+        public delegate void DbChangeEvent(object sender, EventArgs e);
+        public event DbChangeEvent DBChanged;
 
         private readonly string databaseBaseUri;
         private string defaultDesignDoc = null;
@@ -486,6 +489,47 @@ namespace LoveSeat
             }
 
             return request;
+        }
+
+        public void HookupChanges()
+        {
+            Thread t = new Thread((fn) =>
+            {
+                CouchRequest seqReq = GetRequest(databaseBaseUri + "/_changes?since=1&limit=1&descending=true");
+                var seqResp = seqReq.GetCouchResponse();
+
+                dynamic tmp = JsonConvert.DeserializeObject<dynamic>(seqResp.ResponseString);
+
+                CouchRequest req = GetRequest(databaseBaseUri + string.Format("/_changes?since={0}&feed=continuous&heartbeat=15", tmp.last_seq));
+                var httpResponse = req.GetHttpResponse();
+
+                using (var stream = httpResponse.GetResponseStream())
+                {
+                    using (var streamReader = new StreamReader(stream))
+                    {
+                        while (true)
+                        {
+                            var currentLine = streamReader.ReadLine();
+
+                            if (DBChanged == null)
+                            {
+                                break;
+                            }
+
+                            if (currentLine != null && currentLine.Length > 0)
+                            {
+                                if (DBChanged != null)
+                                {
+                                    DBChanged(this, null);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            t.IsBackground = true;
+            t.Start();
         }
 
 
